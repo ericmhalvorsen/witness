@@ -3,10 +3,8 @@
 package selector
 
 import (
-	"bytes"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -17,13 +15,24 @@ import (
 // macOSSelector uses macOS built-in tools for region selection
 type macOSSelector struct {
 	config Config
+	sysCmdExecutor SystemCommand
 }
 
 // newPlatformSelector creates a macOS selector
 func newPlatformSelector() (Selector, error) {
 	return &macOSSelector{
 		config: DefaultConfig(),
+		sysCmdExecutor: NewRealSystemCommand(),
 	}, nil
+}
+
+// NewMacOSSelectorWithExecutor creates a macOS selector with a custom command executor
+// This is primarily used for testing with mock commands
+func NewMacOSSelectorWithExecutor(executor SystemCommand) Selector {
+	return &macOSSelector{
+		config: DefaultConfig(),
+		sysCmdExecutor: executor,
+	}
 }
 
 // Select launches an interactive region selector
@@ -42,10 +51,7 @@ func (s *macOSSelector) Select() (*capture.Region, error) {
 	// Use screencapture with interactive selection
 	// -i: interactive mode (click and drag)
 	// -x: no sound
-	cmd := exec.Command("screencapture", "-i", "-x", tmpFile)
-
-	// Run the command and wait for user selection
-	if err := cmd.Run(); err != nil {
+	if err := s.sysCmdExecutor.RunInteractive("screencapture", "-i", "-x", tmpFile); err != nil {
 		// User likely canceled (ESC)
 		return nil, fmt.Errorf("selection canceled")
 	}
@@ -86,13 +92,10 @@ func (s *macOSSelector) SelectWithName(name string) (*capture.Region, error) {
 // readLastSelection reads the last selection coordinates from macOS preferences
 func (s *macOSSelector) readLastSelection() (*capture.Region, error) {
 	// Read the screencapture preferences
-	cmd := exec.Command("defaults", "read",
+	output, err := s.sysCmdExecutor.Run("defaults", "read",
 		"com.apple.screencapture", "last-selection")
 
-	var out bytes.Buffer
-	cmd.Stdout = &out
-
-	if err := cmd.Run(); err != nil {
+	if err != nil {
 		return nil, fmt.Errorf("failed to read last-selection: %w", err)
 	}
 
@@ -103,11 +106,10 @@ func (s *macOSSelector) readLastSelection() (*capture.Region, error) {
 	//     X = 100;
 	//     Y = 200;
 	// }
-	output := out.String()
 	region := &capture.Region{}
 
 	// Parse each line
-	lines := strings.Split(output, "\n")
+	lines := strings.Split(outputStr, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.Contains(line, "=") {

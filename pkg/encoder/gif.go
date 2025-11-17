@@ -3,6 +3,7 @@ package encoder
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"image/color/palette"
 	"image/draw"
 	"image/gif"
