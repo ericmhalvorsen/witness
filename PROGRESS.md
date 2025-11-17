@@ -194,9 +194,29 @@ xcode-select --install
 - ✅ Added example program (examples/simple_gif.go)
 - ✅ Documented architecture and usage
 
+#### Region Selection Implementation (Session 2)
+- ✅ Researched macOS region selection approaches (screencapture, DarwinKit, NSWindow overlays)
+- ✅ Implemented selector package with platform-agnostic interface
+- ✅ Created macOS selector using screencapture utility for interactive selection
+- ✅ Implemented region persistence in `~/.config/witness/regions.json`
+- ✅ Added region management (save, load, delete, set default)
+- ✅ Completely rewrote CLI with proper command parsing using flag package
+- ✅ Added `witness select` command for interactive region selection
+- ✅ Added `witness regions` command for managing saved regions
+- ✅ Updated README with comprehensive region selection documentation
+- ✅ Built and tested CLI help system
+
+#### Technical Highlights
+- **screencapture integration**: Leverages macOS native tool for familiar UX
+- **Coordinate extraction**: Reads selection from `com.apple.screencapture` preferences
+- **Persistent storage**: JSON-based config in user's home directory
+- **Named regions**: Save frequently used areas for quick reuse
+- **Default region**: Optional default for streamlined workflow
+
 #### Next Steps
+- 🔄 Integrate region selection with GIF recording
 - 🔄 Test actual screen capture on macOS system
-- 🔄 Implement CLI command parsing and flag handling
-- 🔄 Add region selection functionality
 - 🔄 Test GIF output quality and file sizes
+- 🔄 Add duration limit / max frames for recordings
 - 🔄 Begin MP4/H.264 encoding integration
+- 🔄 Consider implementing native overlay selector using DarwinKit

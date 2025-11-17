@@ -36,38 +36,85 @@ go build -o witness ./cmd/witness
 
 ## Usage
 
-### Basic GIF Recording
+### Quick Start
 
+1. **Select a capture region interactively:**
 ```bash
-# Record full screen as GIF
-witness gif -o demo.gif
+witness select -name demo
+```
+This launches macOS's native selection tool - just click and drag to select your capture area!
 
-# Record at 15 FPS for smaller file size
-witness gif -o demo.gif -f 15
-
-# Record specific region
-witness gif -o demo.gif -r 0,0,1920,1080
+2. **Record a GIF using your saved region:**
+```bash
+witness gif -region demo -o demo.gif
 ```
 
-### Video Recording
+### Region Selection
+
+Witness makes it easy to select and reuse screen regions:
+
+```bash
+# Interactive selection (click and drag)
+witness select
+
+# Save the selection for later use
+witness select -name myarea
+
+# Save and set as default
+witness select -name myarea -default
+
+# List all saved regions
+witness regions
+
+# Delete a saved region
+witness regions -delete myarea
+```
+
+### GIF Recording
+
+```bash
+# Record using a saved region
+witness gif -region demo -o demo.gif
+
+# Record using manual coordinates
+witness gif -r 0,0,800,600 -o demo.gif
+
+# Record at lower FPS for smaller files
+witness gif -region demo -o demo.gif -f 10
+
+# Record with different quality levels
+witness gif -region demo -o demo.gif -q low   # Smallest files
+witness gif -region demo -o demo.gif -q high  # Best quality
+```
+
+### Video Recording (Coming Soon)
 
 ```bash
 # Record as MP4
-witness video -o tutorial.mp4
+witness video -region demo -o tutorial.mp4
 
 # High quality recording
-witness video -o tutorial.mp4 -q high
-
-# Lower quality for smaller files
-witness video -o tutorial.mp4 -q low
+witness video -region demo -o tutorial.mp4 -q high
 ```
 
-### Options
+### Command Reference
 
-- `-o, --output <file>` - Output file path (default: auto-generated)
-- `-r, --region <x,y,w,h>` - Capture region (default: full screen)
-- `-f, --fps <number>` - Frames per second (default: 30)
-- `-q, --quality <level>` - Quality: low, medium, high (default: medium)
+**Selection Commands:**
+- `witness select` - Launch interactive region selector
+- `witness select -name <name>` - Select and save region
+- `witness select -name <name> -default` - Select, save, and set as default
+
+**Region Management:**
+- `witness regions` - List all saved regions
+- `witness regions -delete <name>` - Delete a saved region
+- `witness regions -default <name>` - Set a region as default
+
+**Recording Commands:**
+- `witness gif -o <file>` - Record GIF
+  - `-region <name>` - Use a saved region
+  - `-r <x,y,w,h>` - Use manual coordinates
+  - `-f <fps>` - Frames per second (default: 15)
+  - `-q <quality>` - Quality level: low, medium, high (default: medium)
 
 ## Architecture
 
@@ -77,7 +124,8 @@ witness/
 │   └── witness/          # Main CLI application
 ├── pkg/
 │   ├── capture/          # Screen capture interface
-│   └── encoder/          # GIF and video encoders
+│   ├── encoder/          # GIF and video encoders
+│   └── selector/         # Interactive region selection
 └── internal/
     └── macos/            # macOS-specific capture implementation
 ```
@@ -86,6 +134,7 @@ witness/
 
 - **Capture Package**: Platform-agnostic interface for screen capture
 - **Encoder Package**: Handles GIF and video encoding
+- **Selector Package**: Interactive region selection and management
 - **macOS Package**: Core Graphics integration via CGo
 
 ## Technical Details
@@ -95,6 +144,14 @@ witness/
 Witness uses Core Graphics APIs for screen capture:
 - `CGDisplayCreateImage` for simple single-frame capture
 - `CGDisplayStream` (future) for efficient continuous capture
+
+### Region Selection
+
+Interactive region selection leverages macOS's native screenshot tool:
+- Uses `screencapture -i` for familiar click-and-drag selection
+- Reads selection coordinates from system preferences
+- Stores regions in `~/.config/witness/regions.json` for reuse
+- Future: Custom overlay using DarwinKit for enhanced UX
 
 ### GIF Encoding
 
@@ -121,15 +178,18 @@ See [PROGRESS.md](PROGRESS.md) for detailed development progress and roadmap.
 - ✅ Basic capture interface
 - ✅ GIF encoder implementation
 - ✅ macOS CGDisplayCreateImage integration
+- ✅ Interactive region selection
+- ✅ Region persistence and management
+- ✅ CLI command parsing
 
 ### In Progress
-- 🔄 CLI command parsing
-- 🔄 Testing and validation
+- 🔄 GIF recording integration (connecting capture + encoder)
+- 🔄 Testing on actual macOS system
 
 ### Planned
 - ⏳ MP4/H.264 encoding
-- ⏳ Region selection UI
 - ⏳ Advanced compression options
+- ⏳ Native region selector overlay (using DarwinKit)
 - ⏳ Linux support
 
 ## Contributing
