@@ -36,3 +36,6 @@ go.work
 # Temporary files
 tmp/
 temp/
+
+# Mise
+.mise.local.toml
