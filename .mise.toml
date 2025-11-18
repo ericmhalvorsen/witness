@@ -1,0 +1,105 @@
+# Mise configuration for Witness
+# https://mise.jdx.dev/
+
+[env]
+BINARY_NAME = "witness"
+MAIN_PATH = "./cmd/witness"
+BUILD_DIR = "."
+
+[tools]
+go = "1.24.7"
+
+[tasks.build]
+description = "Build the binary"
+run = [
+  "echo 'Building $BINARY_NAME...'",
+  "go build -o $BUILD_DIR/$BINARY_NAME $MAIN_PATH",
+  "echo 'Build complete: $BUILD_DIR/$BINARY_NAME'"
+]
+
+[tasks.clean]
+description = "Remove build artifacts and output files"
+run = [
+  "echo 'Cleaning...'",
+  "rm -f $BUILD_DIR/$BINARY_NAME",
+  "rm -f *.gif *.mp4",
+  "echo 'Clean complete'"
+]
+
+[tasks.test]
+description = "Run all tests"
+run = [
+  "echo 'Running tests...'",
+  "go test ./..."
+]
+
+[tasks."test:verbose"]
+alias = "test-verbose"
+description = "Run tests with verbose output"
+run = [
+  "echo 'Running tests (verbose)...'",
+  "go test -v ./..."
+]
+
+[tasks."test:coverage"]
+alias = "test-coverage"
+description = "Run tests with coverage report"
+run = [
+  "echo 'Running tests with coverage...'",
+  "go test -cover ./...",
+  "echo ''",
+  "echo 'For detailed coverage report, run:'",
+  "echo '  go test -coverprofile=coverage.out ./...'",
+  "echo '  go tool cover -html=coverage.out'"
+]
+
+[tasks."test:race"]
+alias = "test-race"
+description = "Run tests with race detection"
+run = [
+  "echo 'Running tests with race detection...'",
+  "go test -race ./..."
+]
+
+[tasks.install]
+description = "Install to GOPATH/bin"
+run = [
+  "echo 'Installing $BINARY_NAME...'",
+  "go install $MAIN_PATH",
+  "echo 'Install complete'"
+]
+
+[tasks.run]
+description = "Build and run with default settings"
+depends = ["build"]
+run = "./$BINARY_NAME"
+
+[tasks.fmt]
+description = "Format code"
+run = [
+  "echo 'Formatting code...'",
+  "go fmt ./..."
+]
+
+[tasks.lint]
+description = "Run linter"
+run = [
+  "echo 'Running linter...'",
+  "golangci-lint run ./..."
+]
+
+# Shortcuts for common commands
+[tasks.t]
+alias = "test"
+description = "Shortcut for 'test'"
+run = "mise run test"
+
+[tasks.b]
+alias = "build"
+description = "Shortcut for 'build'"
+run = "mise run build"
+
+[tasks.c]
+alias = "clean"
+description = "Shortcut for 'clean'"
+run = "mise run clean"

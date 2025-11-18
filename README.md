@@ -21,9 +21,14 @@ Witness is a command-line screen recorder designed to replace clunky GUI tools l
 - macOS 10.12 or later
 - Go 1.21 or later
 - Xcode Command Line Tools
+- [Mise](https://mise.jdx.dev/) (recommended) or Make
 
 ```bash
+# Install Xcode Command Line Tools
 xcode-select --install
+
+# Install Mise (recommended)
+curl https://mise.run | sh
 ```
 
 ### Build from Source
@@ -31,6 +36,14 @@ xcode-select --install
 ```bash
 git clone https://github.com/ericmhalvorsen/witness.git
 cd witness
+
+# Using Mise (recommended)
+mise run build
+
+# Or using Make
+make build
+
+# Or directly with Go
 go build -o witness ./cmd/witness
 ```
 
@@ -116,6 +129,60 @@ witness video -region demo -o tutorial.mp4 -q high
   - `-f <fps>` - Frames per second (default: 15)
   - `-q <quality>` - Quality level: low, medium, high (default: medium)
 
+## Development
+
+This project uses [Mise](https://mise.jdx.dev/) for task management and tool versioning.
+
+### Available Tasks
+
+View all available tasks:
+```bash
+mise tasks
+```
+
+Common tasks:
+```bash
+mise run build           # Build the binary
+mise run test            # Run all tests
+mise run test:verbose    # Run tests with verbose output
+mise run test:coverage   # Show test coverage
+mise run test:race       # Run tests with race detection
+mise run clean           # Remove build artifacts
+mise run fmt             # Format code
+mise run lint            # Run linter
+mise run install         # Install to GOPATH/bin
+mise run run             # Build and run
+```
+
+Shortcuts:
+```bash
+mise run b               # Same as 'build'
+mise run t               # Same as 'test'
+mise run c               # Same as 'clean'
+```
+
+### Testing
+
+Comprehensive test suite with >90% coverage on core packages. See [TESTING.md](TESTING.md) for details.
+
+```bash
+# Run all tests
+mise run test
+
+# Run with coverage report
+mise run test:coverage
+
+# Run with race detection
+mise run test:race
+```
+
+**Alternative**: You can also use Make if you prefer:
+```bash
+make test
+make test-coverage
+make build
+```
+
 ## Architecture
 
 ```
@@ -181,6 +248,8 @@ See [PROGRESS.md](PROGRESS.md) for detailed development progress and roadmap.
 - ✅ Interactive region selection
 - ✅ Region persistence and management
 - ✅ CLI command parsing
+- ✅ Comprehensive test suite with mocking
+- ✅ Mise task runner configuration
 
 ### In Progress
 - 🔄 GIF recording integration (connecting capture + encoder)

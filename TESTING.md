@@ -20,26 +20,58 @@ Current test coverage by package:
 
 ## Running Tests
 
-### Run All Tests
+### Using Mise (Recommended)
+
 ```bash
+# Run all tests
+mise run test
+
+# Run tests with verbose output
+mise run test:verbose
+
+# Run tests with coverage report
+mise run test:coverage
+
+# Run tests with race detection
+mise run test:race
+
+# View all available test tasks
+mise tasks | grep test
+```
+
+### Using Make (Alternative)
+
+```bash
+# Run all tests
 make test
-```
 
-### Run Tests with Verbose Output
-```bash
+# Run tests with verbose output
 make test-verbose
-```
 
-### Run Tests with Coverage Report
-```bash
+# Run tests with coverage report
 make test-coverage
+
+# Run tests with race detection
+make test-race
 ```
 
-### Run Tests for a Specific Package
+### Using Go Directly
+
 ```bash
+# Run all tests
+go test ./...
+
+# Run tests for a specific package
 go test ./pkg/capture/... -v
 go test ./pkg/encoder/... -v
 go test ./pkg/selector/... -v
+
+# Run with coverage
+go test -cover ./...
+
+# Generate HTML coverage report
+go test -coverprofile=coverage.out ./...
+go tool cover -html=coverage.out
 ```
 
 ## Test Structure
